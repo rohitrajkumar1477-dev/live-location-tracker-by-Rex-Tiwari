@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Live Location Tracker</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>📍 Live Location Tracker</h1>
+  <p class="subtitle">Apne phone ki live location map par dekho — phone kho jaye ya chori ho to last location pata chalegi.</p>
+</header>
+
+<main>
+  <!-- Setup notice: shown when Firebase is not configured yet -->
+  <div id="setup-notice" class="card warning hidden">
+    <strong>Setup baaki hai:</strong> pehle <code>firebase-config.js</code> me apni Firebase details daalo.
+    Steps <a href="https://github.com/rohitrajkumar1477-dev/live-location-tracker-by-Rex-Tiwari#setup-5-minute" target="_blank" rel="noopener">README me hain</a>.
+  </div>
+
+  <!-- Room code: shared secret, only people with this code can see locations -->
+  <section class="card">
+    <label for="room-code">Room Code (secret word)</label>
+    <input id="room-code" type="text" placeholder="jaise: meri-family-4821" autocomplete="off">
+    <p class="hint">Ye code ek password jaisa hai. Tracker aur Viewer dono me <b>wahi code</b> daalo. Jiske paas code hai, wahi location dekh sakta hai.</p>
+    <label for="device-name">Is phone ka naam</label>
+    <input id="device-name" type="text" placeholder="jaise: Rohit ka phone" autocomplete="off">
+  </section>
+
+  <!-- Mode tabs -->
+  <nav class="tabs">
+    <button id="tab-track" class="tab active" type="button">📡 Track karo (is phone ko share karo)</button>
+    <button id="tab-view" class="tab" type="button">🗺️ Dekho (saare phone map par)</button>
+  </nav>
+
+  <!-- TRACK MODE -->
+  <section id="panel-track" class="card">
+    <h2>Is phone ki location share karo</h2>
+    <p>Ye page us phone par kholo jise track karna hai. <b>Start</b> dabate hi location har kuch second me update hogi.</p>
+    <div class="row">
+      <button id="btn-start" class="btn primary" type="button">▶ Start sharing</button>
+      <button id="btn-stop" class="btn danger hidden" type="button">■ Stop sharing</button>
+    </div>
+    <p id="track-status" class="status">Sharing band hai.</p>
+    <ul id="track-details" class="details hidden">
+      <li>Latitude: <span id="td-lat">–</span></li>
+      <li>Longitude: <span id="td-lng">–</span></li>
+      <li>Accuracy: <span id="td-acc">–</span></li>
+      <li>Last update: <span id="td-time">–</span></li>
+    </ul>
+    <p class="hint">⚠️ Location share tab tak chalegi jab tak ye page khula hai aur internet on hai. Phone lock hone par browser band ho sakta hai — isliye chori ke case me <b>Google Find My Device</b> bhi on rakho (README dekho).</p>
+  </section>
+
+  <!-- VIEW MODE -->
+  <section id="panel-view" class="card hidden">
+    <h2>Live map</h2>
+    <div id="map"></div>
+    <p id="view-status" class="status">Room code daal kar map load hoga.</p>
+    <h3>Devices</h3>
+    <ul id="device-list" class="device-list">
+      <li class="muted">Abhi koi device live nahi hai.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p class="hint">Sirf apne ya family ke phone par, unki permission se use karo. Kisi aur ka phone bina bataye track karna galat hai.</p>
+  </footer>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
