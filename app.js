@@ -146,6 +146,10 @@
       return;
     }
     setStatus('track', 'Asking for location permission… tap Allow.');
+    // Attach the map viewer right now — typing the code and tapping Start
+    // without leaving the box never fires the input "change" event, so
+    // without this the map would stay empty even while sharing works.
+    restartViewer();
     watchId = navigator.geolocation.watchPosition(onFix, onGeoError, {
       enableHighAccuracy: true,
       maximumAge: 0,
@@ -223,11 +227,21 @@
 
   function initMap() {
     if (map) { setTimeout(function () { map.invalidateSize(); }, 100); return; }
-    map = L.map('map').setView([23.7957, 86.4304], 12); // default: Dhanbad
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    if (typeof L === 'undefined') {
+      setStatus('view', 'Map failed to load — check your internet and reload the page. Sharing still works.');
+      return;
+    }
+    try {
+      map = L.map('map').setView([23.7957, 86.4304], 12); // default: Dhanbad
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+    } catch (e) {
+      map = null;
+      setStatus('view', 'Map failed to load — check your internet and reload the page. Sharing still works.');
+      return;
+    }
     setTimeout(function () { map.invalidateSize(); }, 100);
   }
 
@@ -262,25 +276,29 @@
     ids.forEach(function (id) {
       var d = devices[id];
       if (typeof d.lat !== 'number' || typeof d.lng !== 'number') return;
-      bounds.push([d.lat, d.lng]);
       var isSelf = id === deviceId;
       var color = isSelf ? '#0b5fff' : '#e5484d';
 
-      if (!markers[id]) {
-        markers[id] = L.marker([d.lat, d.lng], {
-          icon: L.divIcon({ className: '', html: '<span style="display:block;width:18px;height:18px;border-radius:50%;background:' + color + ';border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)"></span>', iconSize: [18, 18], iconAnchor: [9, 9] })
-        }).addTo(map);
-      } else {
-        markers[id].setLatLng([d.lat, d.lng]);
-      }
-      // Movement trail (last 50 points)
-      if (!trails[id]) trails[id] = L.polyline([], { color: color, weight: 3, opacity: 0.7 }).addTo(map);
-      var pts = trails[id].getLatLngs();
-      var lastPt = pts.length ? pts[pts.length - 1] : null;
-      if (!lastPt || lastPt.lat !== d.lat || lastPt.lng !== d.lng) {
-        pts.push([d.lat, d.lng]);
-        if (pts.length > 50) pts.shift();
-        trails[id].setLatLngs(pts);
+      // Map markers and trails only work if the map loaded (Leaflet OK).
+      // The device list below always updates, even if the map failed.
+      if (map) {
+        bounds.push([d.lat, d.lng]);
+        if (!markers[id]) {
+          markers[id] = L.marker([d.lat, d.lng], {
+            icon: L.divIcon({ className: '', html: '<span style="display:block;width:18px;height:18px;border-radius:50%;background:' + color + ';border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)"></span>', iconSize: [18, 18], iconAnchor: [9, 9] })
+          }).addTo(map);
+        } else {
+          markers[id].setLatLng([d.lat, d.lng]);
+        }
+        // Movement trail (last 50 points)
+        if (!trails[id]) trails[id] = L.polyline([], { color: color, weight: 3, opacity: 0.7 }).addTo(map);
+        var pts = trails[id].getLatLngs();
+        var lastPt = pts.length ? pts[pts.length - 1] : null;
+        if (!lastPt || lastPt.lat !== d.lat || lastPt.lng !== d.lng) {
+          pts.push([d.lat, d.lng]);
+          if (pts.length > 50) pts.shift();
+          trails[id].setLatLngs(pts);
+        }
       }
 
       var ago = timeAgo(d.ts);
@@ -299,7 +317,7 @@
         (distLabel ? 'Distance from you: ' + distLabel + '<br>' : '') +
         '<a target="_blank" rel="noopener" href="https://www.google.com/maps?q=' +
         d.lat + ',' + d.lng + '">📍 Open in Google Maps ↗</a>';
-      markers[id].bindPopup(popup);
+      if (markers[id]) markers[id].bindPopup(popup);
 
       var li = document.createElement('li');
       li.innerHTML = '<b>' + escapeHtml(label) + '</b> — ' +
@@ -310,12 +328,14 @@
         '<a target="_blank" rel="noopener" href="https://www.google.com/maps?q=' +
         d.lat + ',' + d.lng + '">📍 Google Maps ↗</a>';
       li.addEventListener('click', function () {
-        map.setView([d.lat, d.lng], 16);
-        markers[id].openPopup();
+        if (map && markers[id]) {
+          map.setView([d.lat, d.lng], 16);
+          markers[id].openPopup();
+        }
       });
       list.appendChild(li);
     });
-    if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+    if (map && bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
     setStatus('view', ids.length + ' device(s) found — updating live.');
   }
 
