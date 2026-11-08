@@ -1,6 +1,20 @@
+<div align="center">
+
 # 📍 Live Location Tracker
 
-Apne phone ki **live location** map par dekho — phone kho jaye ya chori ho to uski **last location** pata chalegi. Koi app install nahi karni, browser me chalta hai.
+**by Rex Tiwari**
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-0b5fff?style=for-the-badge)](https://rohitrajkumar1477-dev.github.io/live-location-tracker-by-Rex-Tiwari/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Made by Rex Tiwari](https://img.shields.io/badge/Made%20by-Rex%20Tiwari-ffd166?style=for-the-badge)](https://github.com/rohitrajkumar1477-dev)
+
+**Apne phone ki live location map par dekho — phone kho jaye ya chori ho to uski last location pata chalegi.**
+
+🔴 Live tracking &nbsp;•&nbsp; 🗺️ Live map &nbsp;•&nbsp; 🔐 Room Code privacy &nbsp;•&nbsp; 📱 Koi app install nahi — browser me chalta hai
+
+</div>
+
+---
 
 ## Kaise kaam karta hai
 
@@ -9,6 +23,13 @@ Apne phone ki **live location** map par dekho — phone kho jaye ya chori ho to 
 3. **Room Code ek secret password jaisa hai.** Jiske paas code hai, wahi location dekh sakta hai. Code kisi se share mat karo.
 
 Location **Firebase Realtime Database** (free) me save hoti hai, isliye dono device par live update hoti hai. Map **OpenStreetMap** (free, koi API key nahi) par dikhta hai.
+
+## Gmail / Phone / IMEI se tracking — sach kya hai
+
+- **IMEI se direct track koi app ya website nahi kar sakti** — sirf mobile company (carrier) aur police kar sakte hain, tower data se. Is app me IMEI **register** hota hai, taaki chori hone par [CEIR (ceir.gov.in)](https://www.ceir.gov.in) se IMEI block karwa sako — uske baad wo phone India me kisi bhi SIM par nahi chalega.
+- **Gmail ID se tracking = Google Find My Device.** Phone me jo Gmail login hai, usi se [google.com/android/find](https://www.google.com/android/find) par phone ko ring, lock ya erase kar sakte ho. Ye system-level hai — is app se zyada powerful hai. Is app me Gmail isliye save hoti hai taaki dashboard par pata chale kaunsa phone kis account ka hai.
+- **Phone number se direct track bhi sirf carrier kar sakta hai.** App me number isliye hai taaki dashboard par phone ki pehchan rahe aur SIM block karwane me kaam aaye.
+- Matlab: **live location is app se, pehchan (Gmail/Phone/IMEI) is app me, aur chori ke baad ki karwai Find My Device + CEIR + police se.** Teeno mil kar poora safety net banta hai.
 
 ## Setup — 5 minute
 

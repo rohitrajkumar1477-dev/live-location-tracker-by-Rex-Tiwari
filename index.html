@@ -3,14 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Live Location Tracker</title>
+<meta name="description" content="Live Location Tracker by Rex Tiwari — share your phone's live location on a map and find it if it gets lost or stolen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230b5fff' d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E">
+<title>Live Location Tracker | Rex Tiwari</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header>
-  <h1>📍 Live Location Tracker</h1>
-  <p class="subtitle">Apne phone ki live location map par dekho — phone kho jaye ya chori ho to last location pata chalegi.</p>
+  <div class="brand">
+    <img class="avatar" src="data:image/jpeg;base64,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" alt="Rex Tiwari">
+    <div class="brand-text">
+      <h1>📍 Live Location Tracker</h1>
+      <p class="byline">by <strong>Rex Tiwari</strong></p>
+      <p class="subtitle">Apne phone ki live location map par dekho — phone kho jaye ya chori ho to last location pata chalegi.</p>
+    </div>
+  </div>
 </header>
 
 <main>
@@ -27,6 +35,18 @@
     <p class="hint">Ye code ek password jaisa hai. Tracker aur Viewer dono me <b>wahi code</b> daalo. Jiske paas code hai, wahi location dekh sakta hai.</p>
     <label for="device-name">Is phone ka naam</label>
     <input id="device-name" type="text" placeholder="jaise: Rohit ka phone" autocomplete="off">
+  </section>
+
+  <!-- Phone ki pehchan: Gmail / Phone / IMEI -->
+  <section class="card">
+    <h2>Phone ki pehchan <span class="muted" style="font-weight:400; font-size:13px;">(ek baar bharo — location ke saath save hogi)</span></h2>
+    <label for="owner-gmail">Gmail ID</label>
+    <input id="owner-gmail" type="email" placeholder="jaise: example@gmail.com" autocomplete="off">
+    <label for="owner-phone">Phone number</label>
+    <input id="owner-phone" type="tel" placeholder="jaise: 9876543210" autocomplete="off">
+    <label for="owner-imei">IMEI number</label>
+    <input id="owner-imei" type="text" placeholder="15 digit — phone me *#06# dial karke dekho" autocomplete="off">
+    <p class="hint">Ye details sirf tumhare Room Code wale dashboard par dikhengi. Isse phone ki pehchan location ke saath judi rehti hai — chori hone par police / carrier ko dene ke kaam aati hai.</p>
   </section>
 
   <!-- Mode tabs -->
@@ -62,10 +82,20 @@
     <ul id="device-list" class="device-list">
       <li class="muted">Abhi koi device live nahi hai.</li>
     </ul>
+    <div class="help-box">
+      <h3>📱 Phone kho jaye ya chori ho to</h3>
+      <ol>
+        <li><b>Google Find My Device</b> kholo — <a href="https://www.google.com/android/find" target="_blank" rel="noopener">google.com/android/find</a> — wahi Gmail ID se login karo jo phone me hai. Wahan se phone ko ring, lock ya erase kar sakte ho.</li>
+        <li><b>IMEI block karwao:</b> <a href="https://www.ceir.gov.in" target="_blank" rel="noopener">ceir.gov.in</a> par chori hue phone ka IMEI block karwao — uske baad wo phone India me kisi bhi SIM par nahi chalega.</li>
+        <li><b>Police complaint</b> karo aur is dashboard ka screenshot + IMEI number saath le jao.</li>
+        <li>Carrier (Jio / Airtel / Vi) ko call karke SIM band karwao.</li>
+      </ol>
+    </div>
   </section>
 
   <footer>
     <p class="hint">Sirf apne ya family ke phone par, unki permission se use karo. Kisi aur ka phone bina bataye track karna galat hai.</p>
+    <p class="credit">Made with ❤️ by <strong>Rex Tiwari</strong> • Live Location Tracker</p>
   </footer>
 </main>
 

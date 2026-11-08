@@ -37,6 +37,17 @@
     localStorage.setItem('llt-name', nameInput.value.trim());
   });
 
+  // Phone ki pehchan: Gmail / Phone / IMEI — ek baar bharo, location ke saath save hoti hai
+  var gmailInput = $('owner-gmail');
+  var phoneInput = $('owner-phone');
+  var imeiInput = $('owner-imei');
+  [['llt-gmail', gmailInput], ['llt-phone', phoneInput], ['llt-imei', imeiInput]].forEach(function (pair) {
+    pair[1].value = localStorage.getItem(pair[0]) || '';
+    pair[1].addEventListener('change', function () {
+      localStorage.setItem(pair[0], pair[1].value.trim());
+    });
+  });
+
   // Stable ID for this phone/browser, created once
   var deviceId = localStorage.getItem('llt-device-id');
   if (!deviceId) {
@@ -139,6 +150,9 @@
     if (!db || !roomCode()) return;
     var data = {
       name: deviceName(),
+      gmail: gmailInput.value.trim() || null,
+      phone: phoneInput.value.trim() || null,
+      imei: imeiInput.value.trim() || null,
       lat: fix.lat,
       lng: fix.lng,
       accuracy: fix.accuracy,
@@ -218,6 +232,9 @@
       }
       var ago = timeAgo(d.ts);
       var popup = '<b>' + escapeHtml(d.name || 'Phone') + '</b><br>' +
+        (d.gmail ? 'Gmail: ' + escapeHtml(d.gmail) + '<br>' : '') +
+        (d.phone ? 'Phone: <a href="tel:' + escapeHtml(d.phone.replace(/[^0-9+]/g, '')) + '">' + escapeHtml(d.phone) + '</a><br>' : '') +
+        (d.imei ? 'IMEI: ' + escapeHtml(d.imei) + '<br>' : '') +
         'Accuracy: ±' + (d.accuracy || '?') + ' m<br>' +
         (d.speedKmh != null ? 'Speed: ' + d.speedKmh + ' km/h<br>' : '') +
         (d.battery != null ? 'Battery: ' + d.battery + '%<br>' : '') +
@@ -230,7 +247,9 @@
       li.innerHTML = '<b>' + escapeHtml(d.name || 'Phone') + '</b> — ' +
         (d.sharing ? '<span class="live">● LIVE</span>' : '<span class="muted">last location</span>') +
         '<br><span class="muted">' + ago + ' • ±' + (d.accuracy || '?') + ' m' +
-        (d.battery != null ? ' • battery ' + d.battery + '%' : '') + '</span> ' +
+        (d.battery != null ? ' • battery ' + d.battery + '%' : '') + '</span>' +
+        (d.phone ? '<br><span class="muted">📞 ' + escapeHtml(d.phone) + '</span>' : '') +
+        (d.imei ? '<br><span class="muted">IMEI: ' + escapeHtml(d.imei) + '</span>' : '') + ' ' +
         '<a target="_blank" rel="noopener" href="https://www.google.com/maps?q=' +
         d.lat + ',' + d.lng + '">Maps ↗</a>';
       li.addEventListener('click', function () {
