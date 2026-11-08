@@ -37,6 +37,23 @@ Locations are saved in **Firebase Realtime Database** (free), so both devices up
 - **Install as an app (PWA)** — tap "Install as app" (or Chrome menu → "Add to Home screen"). It opens full-screen from your home screen like a real app, loads fast offline, and keeps the screen on while sharing so the phone doesn't sleep mid-share.
 - **Screen Wake Lock** — while sharing, the screen stays on so the browser doesn't pause the page.
 
+## If it doesn't work — check the Status box on the page
+
+The page has a **Status** box that shows exactly what is wrong:
+
+| Status shows | What to do |
+|---|---|
+| Internet / Firebase: **Offline** | Check your internet connection and reload. |
+| Location permission: **Denied** | Tap the 🔒 lock icon in the address bar → Site settings → Location → **Allow**, then reload. The browser will not ask again on its own. |
+| Location permission: **Prompt** | Tap **Start Sharing** and tap **Allow** when the browser asks. |
+| GPS: **Error** | Turn on the phone's GPS/Location and try in an open area. |
+| Sharing: **Off** | Enter the Room Code and tap **Start Sharing**. |
+
+Other common fixes:
+- **Open the link in Chrome**, not inside WhatsApp/Instagram/another app's built-in browser — those often block location.
+- **Old version showing?** Hard-refresh the page (Chrome menu → reload, or close and reopen the installed app) — GitHub Pages can take a minute to show the newest version.
+- **Other phone not on the map?** Both phones must use the **same Room Code** and both must have tapped **Start Sharing**.
+
 ## What happens if you leave the site? — the honest truth
 
 **A website cannot track location after you leave it.** That is a browser rule, not a bug in this app:

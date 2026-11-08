@@ -34,14 +34,48 @@
       firebase.initializeApp(window.FIREBASE_CONFIG);
       db = firebase.database();
       setConn('● Connected to Firebase', true);
+      // Real connectivity (not just "initialized"): .info/connected
+      // turns false when the phone is offline.
+      db.ref('.info/connected').on('value', function (snap) {
+        var online = !!snap.val();
+        setConn(online ? '● Connected to Firebase' : '● Offline — check your internet', online);
+        setDiag('diag-firebase', online ? 'Connected' : 'Offline — check your internet');
+      });
     } catch (e) {
       setConn('● Connection error', false);
+      setDiag('diag-firebase', 'Error — check the config');
       showSetupNotice('Firebase config is wrong: ' + e.message);
     }
   } else {
     setConn('● Setup pending', false);
+    setDiag('diag-firebase', 'Not configured');
     showSetupNotice();
   }
+
+  function setDiag(id, text) {
+    var el = $(id);
+    if (el) el.textContent = text;
+  }
+
+  // Location permission state: granted / denied / prompt.
+  // If it is denied, show the exact fix — the browser will not ask again.
+  function checkPermission() {
+    if (!navigator.permissions || !navigator.permissions.query) {
+      setDiag('diag-perm', 'Unknown (browser cannot check)');
+      return;
+    }
+    navigator.permissions.query({ name: 'geolocation' }).then(function (res) {
+      setDiag('diag-perm', res.state.charAt(0).toUpperCase() + res.state.slice(1));
+      $('perm-help').classList.toggle('hidden', res.state !== 'denied');
+      res.onchange = function () {
+        setDiag('diag-perm', res.state.charAt(0).toUpperCase() + res.state.slice(1));
+        $('perm-help').classList.toggle('hidden', res.state !== 'denied');
+      };
+    }).catch(function () {
+      setDiag('diag-perm', 'Unknown');
+    });
+  }
+  checkPermission();
 
   function showSetupNotice(msg) {
     var el = $('setup-notice');
@@ -146,6 +180,8 @@
       return;
     }
     setStatus('track', 'Asking for location permission… tap Allow.');
+    setDiag('diag-gps', 'Waiting for GPS…');
+    setDiag('diag-sharing', 'Starting…');
     // Attach the map viewer right now — typing the code and tapping Start
     // without leaving the box never fires the input "change" event, so
     // without this the map would stay empty even while sharing works.
@@ -174,6 +210,8 @@
     }
     $('btn-start').classList.remove('hidden');
     $('btn-stop').classList.add('hidden');
+    setDiag('diag-sharing', 'Off');
+    setDiag('diag-gps', 'Stopped');
     setStatus('track', 'Sharing stopped. The last location stays saved on the map.');
   }
 
@@ -190,6 +228,8 @@
     $('td-lng').textContent = lastFix.lng.toFixed(6);
     $('td-acc').textContent = '±' + lastFix.accuracy + ' meter';
     $('td-time').textContent = new Date(lastFix.ts).toLocaleTimeString();
+    setDiag('diag-gps', 'OK — updated ' + new Date(lastFix.ts).toLocaleTimeString());
+    setDiag('diag-sharing', 'On — LIVE');
     setStatus('track', '● LIVE — sharing your location, visible on the other phone');
   }
 
@@ -213,6 +253,8 @@
     else if (err.code === 2) msg = 'Location unavailable — turn on GPS and try in an open area.';
     else if (err.code === 3) msg = 'Taking too long to get a location — try again.';
     setStatus('track', msg);
+    setDiag('diag-gps', 'Error — ' + msg);
+    checkPermission(); // refresh the permission state (it may have just changed to Denied)
     // If no position ever arrived, sharing never actually started —
     // reset the buttons so the user can try again instead of showing
     // a misleading "Stop sharing".

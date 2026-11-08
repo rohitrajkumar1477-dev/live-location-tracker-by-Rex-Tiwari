@@ -71,6 +71,18 @@
     </div>
   </section>
 
+  <!-- STATUS: shows exactly what is wrong if something does not work -->
+  <section class="card">
+    <h2>Status</h2>
+    <ul id="diag-list" class="details">
+      <li>Internet / Firebase: <span id="diag-firebase">Checking…</span></li>
+      <li>Location permission: <span id="diag-perm">Checking…</span></li>
+      <li>GPS: <span id="diag-gps">Not started</span></li>
+      <li>Sharing: <span id="diag-sharing">Off</span></li>
+    </ul>
+    <p id="perm-help" class="hint hidden">⚠️ Location is blocked for this site. Tap the 🔒 lock icon in the address bar → Site settings → Location → Allow, then reload this page and tap Start Sharing again.</p>
+  </section>
+
   <!-- LIVE MAP -->
   <section id="panel-view" class="card">
     <h2>Live map — all phones with this code</h2>

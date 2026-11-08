@@ -2,7 +2,7 @@
  * and loads fast offline. It does NOT track location in the background:
  * service workers cannot access GPS. Sharing only works while the page
  * is open. */
-var CACHE = 'llt-v1';
+var CACHE = 'llt-v2';
 var ASSETS = [
   './',
   './index.html',
