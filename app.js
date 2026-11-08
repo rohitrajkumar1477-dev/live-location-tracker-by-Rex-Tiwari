@@ -213,6 +213,16 @@
     else if (err.code === 2) msg = 'Location unavailable — turn on GPS and try in an open area.';
     else if (err.code === 3) msg = 'Taking too long to get a location — try again.';
     setStatus('track', msg);
+    // If no position ever arrived, sharing never actually started —
+    // reset the buttons so the user can try again instead of showing
+    // a misleading "Stop sharing".
+    if (!lastFix) {
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+      if (heartbeat) clearInterval(heartbeat);
+      watchId = null; heartbeat = null;
+      $('btn-start').classList.remove('hidden');
+      $('btn-stop').classList.add('hidden');
+    }
   }
 
   function setStatus(which, text) {
