@@ -18,18 +18,24 @@
 
 ## Kaise kaam karta hai
 
-1. **Tracker phone** (jise track karna hai) par ye page kholo → Room Code daalo → **Start sharing** dabao. Phone apni GPS location har kuch second me bhejta rahega.
-2. **Dusre device** (tumhara doosra phone / laptop) par wahi page kholo → wahi Room Code daalo → **Dekho** tab me live map par phone ki location dikhegi — naam, accuracy, speed, battery aur "last seen" time ke saath.
-3. **Room Code ek secret password jaisa hai.** Jiske paas code hai, wahi location dekh sakta hai. Code kisi se share mat karo.
+1. **Apne phone** par ye page kholo → **Room Code** daalo → **Start sharing** dabao. Phone apni GPS location har kuch second me bhejta rahega.
+2. **Saamne wale ke phone** par wahi page kholo → **wahi Room Code** daalo → **Start sharing** dabao.
+3. Bas — **dono ek dusre ki live location isi page ke map par dekh payenge**, naam ki jagah "Mera phone" aur "Phone XXXX" label ke saath. Har device ke saath **📍 Google Maps** button hai — dabate hi uski live pin Google Maps me khul jayegi.
 
-Location **Firebase Realtime Database** (free) me save hoti hai, isliye dono device par live update hoti hai. Map **OpenStreetMap** (free, koi API key nahi) par dikhta hai.
+**Room Code ek secret password jaisa hai.** Jiske paas code hai, wahi location dekh sakta hai. Code kisi se share mat karo.
+
+Location **Firebase Realtime Database** (free) me save hoti hai, isliye dono device par live update hoti hai. In-app map **OpenStreetMap** (free, koi API key nahi) par dikhta hai — Google Maps me dekhne ke liye har device par **Google Maps** button hai.
+
+## Google Maps ke baare me — sach
+
+- Har device ki live pin **Google Maps me khulti hai** (button dabate hi google.com/maps par exact location).
+- **In-app poora Google Map** (map ke andar Google ka map) chahiye to Google Cloud ki **Maps API key + billing** lagti hai — uske liye card jodna padta hai. Isliye abhi in-app map OpenStreetMap hai, jo free hai aur bina key ke chalta hai.
 
 ## Gmail / Phone / IMEI se tracking — sach kya hai
 
-- **IMEI se direct track koi app ya website nahi kar sakti** — sirf mobile company (carrier) aur police kar sakte hain, tower data se. Is app me IMEI **register** hota hai, taaki chori hone par [CEIR (ceir.gov.in)](https://www.ceir.gov.in) se IMEI block karwa sako — uske baad wo phone India me kisi bhi SIM par nahi chalega.
-- **Gmail ID se tracking = Google Find My Device.** Phone me jo Gmail login hai, usi se [google.com/android/find](https://www.google.com/android/find) par phone ko ring, lock ya erase kar sakte ho. Ye system-level hai — is app se zyada powerful hai. Is app me Gmail isliye save hoti hai taaki dashboard par pata chale kaunsa phone kis account ka hai.
-- **Phone number se direct track bhi sirf carrier kar sakta hai.** App me number isliye hai taaki dashboard par phone ki pehchan rahe aur SIM block karwane me kaam aaye.
-- Matlab: **live location is app se, pehchan (Gmail/Phone/IMEI) is app me, aur chori ke baad ki karwai Find My Device + CEIR + police se.** Teeno mil kar poora safety net banta hai.
+- **IMEI ya phone number se direct track koi app ya website nahi kar sakti** — sirf mobile company (carrier) aur police kar sakte hain, tower data se. Chori hone par IMEI **block** karwaya ja sakta hai: [CEIR (ceir.gov.in)](https://www.ceir.gov.in) — uske baad wo phone India me kisi bhi SIM par nahi chalega.
+- **Gmail ID se tracking = Google Find My Device.** Phone me jo Gmail login hai, usi se [google.com/android/find](https://www.google.com/android/find) par phone ko ring, lock ya erase kar sakte ho. Ye system-level hai — is app se zyada powerful hai.
+- Is app me **koi Gmail, phone number ya IMEI nahi manga jata** — sirf Room Code. Live location is app se, aur chori ke baad ki karwai Find My Device + CEIR + police se.
 
 ## Setup — 5 minute
 
@@ -45,7 +51,7 @@ Location **Firebase Realtime Database** (free) me save hoti hai, isliye dono dev
 ### 3. Web app config nikalo
 1. Project settings (⚙️ gear icon, top-left) → **Your apps → Web app (`</>`)** → nickname do → **Register app**.
 2. Jo config dikhe (apiKey, databaseURL, …), use `firebase-config.example.js` ko copy karke **`firebase-config.js`** naam se save karo aur values paste karo.
-3. ⚠️ Ye file kabhi GitHub par **public mat karo** — isliye ye repo me hai hi nahi; sirf apne deploy me rakho. (Keys browser me waise bhi dikhti hain — asli security Rules + Room Code hain.)
+3. ⚠️ Ye keys browser me waise bhi dikhti hain — asli security Rules + Room Code hain. Isliye config repo me reh sakti hai.
 
 ### 4. GitHub Pages par deploy karo (free hosting)
 1. Is repo ki **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main`, folder `/ (root)` → Save**.
@@ -54,16 +60,13 @@ Location **Firebase Realtime Database** (free) me save hoti hai, isliye dono dev
 
 ## Use kaise karein
 
-**Tracker phone par (jise track karna hai):**
-1. Pages wala link kholo → Room Code + phone ka naam daalo → **Track karo** tab → **Start sharing** → Location permission **Allow** karo.
+**Dono phone par (ek jaisa step):**
+1. Pages wala link kholo → **Room Code** daalo → **Start sharing** → Location permission **Allow** karo.
 2. Page khula rehne do. Best hai: phone ko charging par rakho, aur browser ko background me band mat hone do.
-
-**Dusre device par (dekhne ke liye):**
-1. Wahi link kholo → wahi Room Code daalo → **Dekho** tab → map par live marker dikhega.
-2. Device par tap karo to Google Maps me khol sakte ho (rasta dekhne ke liye).
+3. Neeche map par **dono phone live dikhenge**. Kisi device par tap karo to uski live pin **Google Maps** me khul jayegi (rasta dekhne ke liye).
 
 **Chori hone par:**
-1. Dusre device se **Dekho** tab kholo — **last location** dikhegi, chahe phone band bhi ho gaya ho (Stop dabaye bina last location delete nahi hoti).
+1. Dusre device se wahi link kholo — **last location** dikhegi, chahe phone band bhi ho gaya ho (Stop dabaye bina last location delete nahi hoti).
 2. Turant police complaint karo aur location screenshot ke saath share karo. **Khud chor ke peeche mat jao.**
 
 ## ⚠️ Imaandaar limits — zaroor padho
@@ -97,4 +100,4 @@ python3 -m http.server 8000
 # phir kholo: http://localhost:8000
 ```
 
-> Note: `firebase-config.js` file repo me nahi hai (gitignore me hai) — apni config khud banao, upar Step 3 dekho.
+> Note: `firebase-config.js` repo me hai (Pages ko chahiye) — uski keys browser me waise bhi dikhti hain; asli security Rules + Room Code hain.

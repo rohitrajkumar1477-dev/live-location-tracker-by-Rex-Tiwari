@@ -26,26 +26,10 @@
 
   /* ---------- Saved settings ---------- */
   var roomInput = $('room-code');
-  var nameInput = $('device-name');
   roomInput.value = localStorage.getItem('llt-room') || '';
-  nameInput.value = localStorage.getItem('llt-name') || '';
   roomInput.addEventListener('change', function () {
     localStorage.setItem('llt-room', roomInput.value.trim());
     restartViewer();
-  });
-  nameInput.addEventListener('change', function () {
-    localStorage.setItem('llt-name', nameInput.value.trim());
-  });
-
-  // Phone ki pehchan: Gmail / Phone / IMEI — ek baar bharo, location ke saath save hoti hai
-  var gmailInput = $('owner-gmail');
-  var phoneInput = $('owner-phone');
-  var imeiInput = $('owner-imei');
-  [['llt-gmail', gmailInput], ['llt-phone', phoneInput], ['llt-imei', imeiInput]].forEach(function (pair) {
-    pair[1].value = localStorage.getItem(pair[0]) || '';
-    pair[1].addEventListener('change', function () {
-      localStorage.setItem(pair[0], pair[1].value.trim());
-    });
   });
 
   // Stable ID for this phone/browser, created once
@@ -56,25 +40,18 @@
   }
 
   function roomCode() { return roomInput.value.trim(); }
-  function deviceName() { return nameInput.value.trim() || 'Mera phone'; }
+  // Har phone ka label apne aap banta hai — koi naam bharne ki zaroorat nahi.
+  function displayName(id) {
+    if (id === deviceId) return 'Mera phone';
+    return 'Phone ' + String(id).replace('dev-', '').slice(0, 4).toUpperCase();
+  }
   function roomRef() {
     return db.ref('rooms/' + encodeURIComponent(roomCode()) + '/devices');
   }
 
-  /* ---------- Tabs ---------- */
-  $('tab-track').addEventListener('click', function () { setTab('track'); });
-  $('tab-view').addEventListener('click', function () { setTab('view'); });
-
-  function setTab(which) {
-    $('tab-track').classList.toggle('active', which === 'track');
-    $('tab-view').classList.toggle('active', which === 'view');
-    $('panel-track').classList.toggle('hidden', which !== 'track');
-    $('panel-view').classList.toggle('hidden', which !== 'view');
-    if (which === 'view') {
-      initMap();
-      restartViewer();
-    }
-  }
+  /* ---------- Map + viewer: page khulte hi start ---------- */
+  initMap();
+  restartViewer();
 
   /* ---------- TRACK MODE ---------- */
   var watchId = null;
@@ -143,16 +120,12 @@
     $('td-lng').textContent = lastFix.lng.toFixed(6);
     $('td-acc').textContent = '±' + lastFix.accuracy + ' meter';
     $('td-time').textContent = new Date(lastFix.ts).toLocaleTimeString();
-    setStatus('track', '● LIVE — location share ho rahi hai (' + deviceName() + ')');
+    setStatus('track', '● LIVE — location share ho rahi hai, dusre phone par dikh rahi hai');
   }
 
   function sendFix(fix) {
     if (!db || !roomCode()) return;
     var data = {
-      name: deviceName(),
-      gmail: gmailInput.value.trim() || null,
-      phone: phoneInput.value.trim() || null,
-      imei: imeiInput.value.trim() || null,
       lat: fix.lat,
       lng: fix.lng,
       accuracy: fix.accuracy,
@@ -192,7 +165,6 @@
   }
 
   function restartViewer() {
-    if (!$('panel-view') || $('panel-view').classList.contains('hidden')) return;
     if (viewerRef) { viewerRef.off(); viewerRef = null; }
     if (!db) { setStatus('view', 'Firebase setup baaki hai.'); return; }
     if (!roomCode()) {
@@ -231,27 +203,23 @@
         markers[id].setLatLng([d.lat, d.lng]);
       }
       var ago = timeAgo(d.ts);
-      var popup = '<b>' + escapeHtml(d.name || 'Phone') + '</b><br>' +
-        (d.gmail ? 'Gmail: ' + escapeHtml(d.gmail) + '<br>' : '') +
-        (d.phone ? 'Phone: <a href="tel:' + escapeHtml(d.phone.replace(/[^0-9+]/g, '')) + '">' + escapeHtml(d.phone) + '</a><br>' : '') +
-        (d.imei ? 'IMEI: ' + escapeHtml(d.imei) + '<br>' : '') +
+      var label = displayName(id);
+      var popup = '<b>' + escapeHtml(label) + '</b><br>' +
         'Accuracy: ±' + (d.accuracy || '?') + ' m<br>' +
         (d.speedKmh != null ? 'Speed: ' + d.speedKmh + ' km/h<br>' : '') +
         (d.battery != null ? 'Battery: ' + d.battery + '%<br>' : '') +
         'Last seen: ' + ago + '<br>' +
         '<a target="_blank" rel="noopener" href="https://www.google.com/maps?q=' +
-        d.lat + ',' + d.lng + '">Google Maps me kholo ↗</a>';
+        d.lat + ',' + d.lng + '">📍 Google Maps me kholo ↗</a>';
       markers[id].bindPopup(popup);
 
       var li = document.createElement('li');
-      li.innerHTML = '<b>' + escapeHtml(d.name || 'Phone') + '</b> — ' +
+      li.innerHTML = '<b>' + escapeHtml(label) + '</b> — ' +
         (d.sharing ? '<span class="live">● LIVE</span>' : '<span class="muted">last location</span>') +
         '<br><span class="muted">' + ago + ' • ±' + (d.accuracy || '?') + ' m' +
-        (d.battery != null ? ' • battery ' + d.battery + '%' : '') + '</span>' +
-        (d.phone ? '<br><span class="muted">📞 ' + escapeHtml(d.phone) + '</span>' : '') +
-        (d.imei ? '<br><span class="muted">IMEI: ' + escapeHtml(d.imei) + '</span>' : '') + ' ' +
+        (d.battery != null ? ' • battery ' + d.battery + '%' : '') + '</span> ' +
         '<a target="_blank" rel="noopener" href="https://www.google.com/maps?q=' +
-        d.lat + ',' + d.lng + '">Maps ↗</a>';
+        d.lat + ',' + d.lng + '">📍 Google Maps ↗</a>';
       li.addEventListener('click', function () {
         map.setView([d.lat, d.lng], 16);
         markers[id].openPopup();

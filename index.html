@@ -32,33 +32,13 @@
   <section class="card">
     <label for="room-code">Room Code (secret word)</label>
     <input id="room-code" type="text" placeholder="jaise: meri-family-4821" autocomplete="off">
-    <p class="hint">Ye code ek password jaisa hai. Tracker aur Viewer dono me <b>wahi code</b> daalo. Jiske paas code hai, wahi location dekh sakta hai.</p>
-    <label for="device-name">Is phone ka naam</label>
-    <input id="device-name" type="text" placeholder="jaise: Rohit ka phone" autocomplete="off">
+    <p class="hint">Ye code ek password jaisa hai. Dono phone me <b>wahi code</b> daalo — phir dono ek dusre ki live location isi map par dekhenge. Jiske paas code hai, wahi dekh sakta hai.</p>
   </section>
 
-  <!-- Phone ki pehchan: Gmail / Phone / IMEI -->
-  <section class="card">
-    <h2>Phone ki pehchan <span class="muted" style="font-weight:400; font-size:13px;">(ek baar bharo — location ke saath save hogi)</span></h2>
-    <label for="owner-gmail">Gmail ID</label>
-    <input id="owner-gmail" type="email" placeholder="jaise: example@gmail.com" autocomplete="off">
-    <label for="owner-phone">Phone number</label>
-    <input id="owner-phone" type="tel" placeholder="jaise: 9876543210" autocomplete="off">
-    <label for="owner-imei">IMEI number</label>
-    <input id="owner-imei" type="text" placeholder="15 digit — phone me *#06# dial karke dekho" autocomplete="off">
-    <p class="hint">Ye details sirf tumhare Room Code wale dashboard par dikhengi. Isse phone ki pehchan location ke saath judi rehti hai — chori hone par police / carrier ko dene ke kaam aati hai.</p>
-  </section>
-
-  <!-- Mode tabs -->
-  <nav class="tabs">
-    <button id="tab-track" class="tab active" type="button">📡 Track karo (is phone ko share karo)</button>
-    <button id="tab-view" class="tab" type="button">🗺️ Dekho (saare phone map par)</button>
-  </nav>
-
-  <!-- TRACK MODE -->
+  <!-- SHARE -->
   <section id="panel-track" class="card">
     <h2>Is phone ki location share karo</h2>
-    <p>Ye page us phone par kholo jise track karna hai. <b>Start</b> dabate hi location har kuch second me update hogi.</p>
+    <p>Code daal kar <b>Start</b> dabao — location har kuch second me update hogi aur dusre phone par dikhegi.</p>
     <div class="row">
       <button id="btn-start" class="btn primary" type="button">▶ Start sharing</button>
       <button id="btn-stop" class="btn danger hidden" type="button">■ Stop sharing</button>
@@ -70,27 +50,18 @@
       <li>Accuracy: <span id="td-acc">–</span></li>
       <li>Last update: <span id="td-time">–</span></li>
     </ul>
-    <p class="hint">⚠️ Location share tab tak chalegi jab tak ye page khula hai aur internet on hai. Phone lock hone par browser band ho sakta hai — isliye chori ke case me <b>Google Find My Device</b> bhi on rakho (README dekho).</p>
+    <p class="hint">⚠️ Sharing tab tak chalegi jab tak ye page khula hai aur internet on hai.</p>
   </section>
 
-  <!-- VIEW MODE -->
-  <section id="panel-view" class="card hidden">
-    <h2>Live map</h2>
+  <!-- LIVE MAP -->
+  <section id="panel-view" class="card">
+    <h2>Live map — isi code wale saare phone</h2>
     <div id="map"></div>
     <p id="view-status" class="status">Room code daal kar map load hoga.</p>
     <h3>Devices</h3>
     <ul id="device-list" class="device-list">
       <li class="muted">Abhi koi device live nahi hai.</li>
     </ul>
-    <div class="help-box">
-      <h3>📱 Phone kho jaye ya chori ho to</h3>
-      <ol>
-        <li><b>Google Find My Device</b> kholo — <a href="https://www.google.com/android/find" target="_blank" rel="noopener">google.com/android/find</a> — wahi Gmail ID se login karo jo phone me hai. Wahan se phone ko ring, lock ya erase kar sakte ho.</li>
-        <li><b>IMEI block karwao:</b> <a href="https://www.ceir.gov.in" target="_blank" rel="noopener">ceir.gov.in</a> par chori hue phone ka IMEI block karwao — uske baad wo phone India me kisi bhi SIM par nahi chalega.</li>
-        <li><b>Police complaint</b> karo aur is dashboard ka screenshot + IMEI number saath le jao.</li>
-        <li>Carrier (Jio / Airtel / Vi) ko call karke SIM band karwao.</li>
-      </ol>
-    </div>
   </section>
 
   <footer>
