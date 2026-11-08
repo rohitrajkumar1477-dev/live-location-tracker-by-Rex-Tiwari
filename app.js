@@ -6,30 +6,61 @@
 
   /* ---------- Firebase ---------- */
   var db = null;
+  function setConn(text, ok) {
+    var el = $('conn-status');
+    if (!el) return;
+    el.textContent = text;
+    el.classList.toggle('live', !!ok);
+  }
   if (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey &&
       window.FIREBASE_CONFIG.apiKey !== 'PASTE_YOUR_API_KEY_HERE') {
     try {
       firebase.initializeApp(window.FIREBASE_CONFIG);
       db = firebase.database();
+      setConn('● Connected to Firebase', true);
     } catch (e) {
-      showSetupNotice('Firebase config galat hai: ' + e.message);
+      setConn('● Connection error', false);
+      showSetupNotice('Firebase config is wrong: ' + e.message);
     }
   } else {
+    setConn('● Setup pending', false);
     showSetupNotice();
   }
 
   function showSetupNotice(msg) {
     var el = $('setup-notice');
     el.classList.remove('hidden');
-    if (msg) el.innerHTML = '<strong>Setup baaki hai:</strong> ' + msg;
+    if (msg) el.innerHTML = '<strong>Setup pending:</strong> ' + msg;
   }
 
   /* ---------- Saved settings ---------- */
   var roomInput = $('room-code');
-  roomInput.value = localStorage.getItem('llt-room') || '';
+  // Room code can come from the invite link: ?room=CODE
+  var urlRoom = '';
+  try { urlRoom = new URLSearchParams(location.search).get('room') || ''; } catch (e) { /* old browser */ }
+  roomInput.value = urlRoom || localStorage.getItem('llt-room') || '';
+  if (urlRoom) localStorage.setItem('llt-room', urlRoom);
   roomInput.addEventListener('change', function () {
     localStorage.setItem('llt-room', roomInput.value.trim());
     restartViewer();
+  });
+
+  // Invite link: page URL + ?room=CODE, so the other person opens it with the code filled in
+  $('btn-invite').addEventListener('click', function () {
+    if (!roomCode()) {
+      $('invite-status').textContent = 'Enter the Room Code first.';
+      roomInput.focus();
+      return;
+    }
+    var link = location.origin + location.pathname + '?room=' + encodeURIComponent(roomCode());
+    var done = function () { $('invite-status').textContent = 'Invite link copied — send it to the other person.'; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(link).then(done, function () {
+        $('invite-status').textContent = 'Copy failed — share the page link from the address bar instead.';
+      });
+    } else {
+      $('invite-status').textContent = 'Copy not supported here — share this link: ' + link;
+    }
   });
 
   // Stable ID for this phone/browser, created once
@@ -40,16 +71,16 @@
   }
 
   function roomCode() { return roomInput.value.trim(); }
-  // Har phone ka label apne aap banta hai — koi naam bharne ki zaroorat nahi.
+  // Each phone's label is automatic — no name to type.
   function displayName(id) {
-    if (id === deviceId) return 'Mera phone';
+    if (id === deviceId) return 'My phone';
     return 'Phone ' + String(id).replace('dev-', '').slice(0, 4).toUpperCase();
   }
   function roomRef() {
     return db.ref('rooms/' + encodeURIComponent(roomCode()) + '/devices');
   }
 
-  /* ---------- Map + viewer: page khulte hi start ---------- */
+  /* ---------- Map + viewer: start as soon as the page opens ---------- */
   initMap();
   restartViewer();
 
@@ -73,21 +104,21 @@
   function startSharing() {
     if (!db) { showSetupNotice(); return; }
     if (!roomCode()) {
-      setStatus('track', 'Pehle Room Code daalo (upar wala box).');
+      setStatus('track', 'Enter the Room Code first (the box above).');
       roomInput.focus();
       return;
     }
     if (!('geolocation' in navigator)) {
-      setStatus('track', 'Is browser me location support nahi hai. Chrome use karo.');
+      setStatus('track', 'This browser does not support location. Use Chrome.');
       return;
     }
-    setStatus('track', 'Location permission maang rahe hain… Allow dabao.');
+    setStatus('track', 'Asking for location permission… tap Allow.');
     watchId = navigator.geolocation.watchPosition(onFix, onGeoError, {
       enableHighAccuracy: true,
       maximumAge: 0,
       timeout: 15000
     });
-    // Har 15 second me last location dobara bhejo, taaki "last seen" fresh rahe
+    // Re-send the last location every 15 seconds so "last seen" stays fresh
     heartbeat = setInterval(function () { if (lastFix) sendFix(lastFix); }, 15000);
     $('btn-start').classList.add('hidden');
     $('btn-stop').classList.remove('hidden');
@@ -98,13 +129,13 @@
     if (watchId !== null) navigator.geolocation.clearWatch(watchId);
     if (heartbeat) clearInterval(heartbeat);
     watchId = null; heartbeat = null;
-    // Last location delete NAHI karte — chori ke case me wahi kaam aati hai.
+    // Never delete the last location — it is what helps if the phone is stolen.
     if (db && roomCode()) {
       roomRef().child(deviceId).child('sharing').set(false);
     }
     $('btn-start').classList.remove('hidden');
     $('btn-stop').classList.add('hidden');
-    setStatus('track', 'Sharing band ho gayi. Last location map par saved rahegi.');
+    setStatus('track', 'Sharing stopped. The last location stays saved on the map.');
   }
 
   function onFix(pos) {
@@ -120,7 +151,7 @@
     $('td-lng').textContent = lastFix.lng.toFixed(6);
     $('td-acc').textContent = '±' + lastFix.accuracy + ' meter';
     $('td-time').textContent = new Date(lastFix.ts).toLocaleTimeString();
-    setStatus('track', '● LIVE — location share ho rahi hai, dusre phone par dikh rahi hai');
+    setStatus('track', '● LIVE — sharing your location, visible on the other phone');
   }
 
   function sendFix(fix) {
@@ -138,10 +169,10 @@
   }
 
   function onGeoError(err) {
-    var msg = 'Location nahi mili.';
-    if (err.code === 1) msg = 'Location permission DENY hai — browser ki site settings me Location ko Allow karo, phir dobara try karo.';
-    else if (err.code === 2) msg = 'Location mil nahi rahi — GPS on karo aur khuli jagah me try karo.';
-    else if (err.code === 3) msg = 'Location lene me time lag raha hai — dobara try karo.';
+    var msg = 'Location not found.';
+    if (err.code === 1) msg = 'Location permission is DENIED — allow Location in the browser site settings, then try again.';
+    else if (err.code === 2) msg = 'Location unavailable — turn on GPS and try in an open area.';
+    else if (err.code === 3) msg = 'Taking too long to get a location — try again.';
     setStatus('track', msg);
   }
 
@@ -152,6 +183,7 @@
   /* ---------- VIEW MODE (map + device list) ---------- */
   var map = null;
   var markers = {};
+  var trails = {};
   var viewerRef = null;
 
   function initMap() {
@@ -166,19 +198,19 @@
 
   function restartViewer() {
     if (viewerRef) { viewerRef.off(); viewerRef = null; }
-    if (!db) { setStatus('view', 'Firebase setup baaki hai.'); return; }
+    if (!db) { setStatus('view', 'Firebase setup is pending.'); return; }
     if (!roomCode()) {
-      setStatus('view', 'Room Code daalo — wahi code jo tracker phone me daala tha.');
+      setStatus('view', 'Enter the Room Code — the same code entered on the tracking phone.');
       return;
     }
     initMap();
-    setStatus('view', 'Live sun rahe hain…');
+    setStatus('view', 'Listening live…');
     viewerRef = roomRef();
     viewerRef.on('value', function (snap) {
       var devices = snap.val() || {};
       renderDevices(devices);
     }, function (err) {
-      setStatus('view', 'Map load nahi hua: ' + err.message);
+      setStatus('view', 'Map failed to load: ' + err.message);
     });
   }
 
@@ -187,8 +219,8 @@
     var list = $('device-list');
     list.innerHTML = '';
     if (!ids.length) {
-      list.innerHTML = '<li class="muted">Abhi koi device live nahi hai.</li>';
-      setStatus('view', 'Koi device nahi mila. Tracker phone me wahi Room Code + Start sharing check karo.');
+      list.innerHTML = '<li class="muted">No device is live right now.</li>';
+      setStatus('view', 'No device found. Check the same Room Code and Start sharing on the tracking phone.');
       return;
     }
     var bounds = [];
@@ -196,28 +228,50 @@
       var d = devices[id];
       if (typeof d.lat !== 'number' || typeof d.lng !== 'number') return;
       bounds.push([d.lat, d.lng]);
+      var isSelf = id === deviceId;
+      var color = isSelf ? '#0b5fff' : '#e5484d';
 
       if (!markers[id]) {
-        markers[id] = L.marker([d.lat, d.lng]).addTo(map);
+        markers[id] = L.marker([d.lat, d.lng], {
+          icon: L.divIcon({ className: '', html: '<span style="display:block;width:18px;height:18px;border-radius:50%;background:' + color + ';border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)"></span>', iconSize: [18, 18], iconAnchor: [9, 9] })
+        }).addTo(map);
       } else {
         markers[id].setLatLng([d.lat, d.lng]);
       }
+      // Movement trail (last 50 points)
+      if (!trails[id]) trails[id] = L.polyline([], { color: color, weight: 3, opacity: 0.7 }).addTo(map);
+      var pts = trails[id].getLatLngs();
+      var lastPt = pts.length ? pts[pts.length - 1] : null;
+      if (!lastPt || lastPt.lat !== d.lat || lastPt.lng !== d.lng) {
+        pts.push([d.lat, d.lng]);
+        if (pts.length > 50) pts.shift();
+        trails[id].setLatLngs(pts);
+      }
+
       var ago = timeAgo(d.ts);
       var label = displayName(id);
+      // Distance from your phone
+      var distLabel = '';
+      if (!isSelf && lastFix) {
+        var km = haversineKm(lastFix.lat, lastFix.lng, d.lat, d.lng);
+        distLabel = km < 1 ? Math.round(km * 1000) + ' m away' : km.toFixed(1) + ' km away';
+      }
       var popup = '<b>' + escapeHtml(label) + '</b><br>' +
         'Accuracy: ±' + (d.accuracy || '?') + ' m<br>' +
         (d.speedKmh != null ? 'Speed: ' + d.speedKmh + ' km/h<br>' : '') +
         (d.battery != null ? 'Battery: ' + d.battery + '%<br>' : '') +
         'Last seen: ' + ago + '<br>' +
+        (distLabel ? 'Distance from you: ' + distLabel + '<br>' : '') +
         '<a target="_blank" rel="noopener" href="https://www.google.com/maps?q=' +
-        d.lat + ',' + d.lng + '">📍 Google Maps me kholo ↗</a>';
+        d.lat + ',' + d.lng + '">📍 Open in Google Maps ↗</a>';
       markers[id].bindPopup(popup);
 
       var li = document.createElement('li');
       li.innerHTML = '<b>' + escapeHtml(label) + '</b> — ' +
         (d.sharing ? '<span class="live">● LIVE</span>' : '<span class="muted">last location</span>') +
         '<br><span class="muted">' + ago + ' • ±' + (d.accuracy || '?') + ' m' +
-        (d.battery != null ? ' • battery ' + d.battery + '%' : '') + '</span> ' +
+        (d.battery != null ? ' • battery ' + d.battery + '%' : '') +
+        (distLabel ? ' • ' + distLabel : '') + '</span> ' +
         '<a target="_blank" rel="noopener" href="https://www.google.com/maps?q=' +
         d.lat + ',' + d.lng + '">📍 Google Maps ↗</a>';
       li.addEventListener('click', function () {
@@ -227,19 +281,27 @@
       list.appendChild(li);
     });
     if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
-    setStatus('view', ids.length + ' device(s) mil rahe hain — live update ho raha hai.');
+    setStatus('view', ids.length + ' device(s) found — updating live.');
+  }
+
+  function haversineKm(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var a = Math.sin((lat2 - lat1) * Math.PI / 360);
+    var b = Math.sin((lng2 - lng1) * Math.PI / 360);
+    var h = a * a + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * b * b;
+    return 2 * R * Math.asin(Math.sqrt(h));
   }
 
   function timeAgo(ts) {
-    if (!ts) return 'kabhi nahi';
+    if (!ts) return 'never';
     var s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
-    if (s < 10) return 'abhi abhi';
-    if (s < 60) return s + ' sec pehle';
+    if (s < 10) return 'just now';
+    if (s < 60) return s + ' sec ago';
     var m = Math.floor(s / 60);
-    if (m < 60) return m + ' min pehle';
+    if (m < 60) return m + ' min ago';
     var h = Math.floor(m / 60);
-    if (h < 24) return h + ' ghante pehle';
-    return Math.floor(h / 24) + ' din pehle';
+    if (h < 24) return h + ' hr ago';
+    return Math.floor(h / 24) + ' days ago';
   }
 
   function escapeHtml(s) {

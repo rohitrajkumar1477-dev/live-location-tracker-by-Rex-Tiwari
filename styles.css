@@ -44,6 +44,13 @@ footer { text-align: center; }
 .credit { font-size: 13px; color: #5b6b7a; margin: 6px 0 0; }
 code { background: #eef1f4; padding: 1px 5px; border-radius: 4px; }
 
+/* How-it-works steps */
+.steps { display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.steps > div { display: flex; align-items: center; gap: 10px; }
+.step-num { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: #0b5fff; color: #fff; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+/* Secondary button (invite link) */
+.btn { background: #eef2f6; color: #1c2733; border: 1px solid #c8d0d8; }
+#invite-status { font-size: 13px; color: #5b6b7a; font-weight: 400; align-self: center; }
 @media (max-width: 480px) {
   .brand { gap: 12px; }
   .avatar { width: 64px; height: 64px; }

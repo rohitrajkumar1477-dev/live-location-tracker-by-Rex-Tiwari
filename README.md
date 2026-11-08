@@ -8,96 +8,105 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![Made by Rex Tiwari](https://img.shields.io/badge/Made%20by-Rex%20Tiwari-ffd166?style=for-the-badge)](https://github.com/rohitrajkumar1477-dev)
 
-**Apne phone ki live location map par dekho — phone kho jaye ya chori ho to uski last location pata chalegi.**
+**See your phone's live location on the map — if it gets lost or stolen, you'll know its last location.**
 
-🔴 Live tracking &nbsp;•&nbsp; 🗺️ Live map &nbsp;•&nbsp; 🔐 Room Code privacy &nbsp;•&nbsp; 📱 Koi app install nahi — browser me chalta hai
+🔴 Live tracking &nbsp;•&nbsp; 🗺️ Live map &nbsp;•&nbsp; 🔐 Room Code privacy &nbsp;•&nbsp; 📱 No app install — runs in the browser
 
 </div>
 
 ---
 
-## Kaise kaam karta hai
+## How it works
 
-1. **Apne phone** par ye page kholo → **Room Code** daalo → **Start sharing** dabao. Phone apni GPS location har kuch second me bhejta rahega.
-2. **Saamne wale ke phone** par wahi page kholo → **wahi Room Code** daalo → **Start sharing** dabao.
-3. Bas — **dono ek dusre ki live location isi page ke map par dekh payenge**, naam ki jagah "Mera phone" aur "Phone XXXX" label ke saath. Har device ke saath **📍 Google Maps** button hai — dabate hi uski live pin Google Maps me khul jayegi.
+1. **On your phone**, open this page → enter a **Room Code** → tap **Start Sharing**. Your phone sends its GPS location every few seconds.
+2. **On the other person's phone**, open the same page → enter the **same Room Code** → tap **Start Sharing**.
+3. Done — **both phones see each other's live location on the same map**, labelled "My phone" and "Phone XXXX". No names to type, no accounts, no extra details.
 
-**Room Code ek secret password jaisa hai.** Jiske paas code hai, wahi location dekh sakta hai. Code kisi se share mat karo.
+**The Room Code works like a password.** Only people with the code can see the location. Never share it with strangers.
 
-Location **Firebase Realtime Database** (free) me save hoti hai, isliye dono device par live update hoti hai. In-app map **OpenStreetMap** (free, koi API key nahi) par dikhta hai — Google Maps me dekhne ke liye har device par **Google Maps** button hai.
+Locations are saved in **Firebase Realtime Database** (free), so both devices update live. The in-app map is **OpenStreetMap** (free, no API key). Every device has a **📍 Google Maps** button — tap it and that phone's live pin opens in real Google Maps.
 
-## Google Maps ke baare me — sach
+### Extra features (all free)
 
-- Har device ki live pin **Google Maps me khulti hai** (button dabate hi google.com/maps par exact location).
-- **In-app poora Google Map** (map ke andar Google ka map) chahiye to Google Cloud ki **Maps API key + billing** lagti hai — uske liye card jodna padta hai. Isliye abhi in-app map OpenStreetMap hai, jo free hai aur bina key ke chalta hai.
+- **Connection status** — the map card shows whether the app is connected to Firebase.
+- **Movement trails** — each phone leaves a trail on the map so you can see where it has been.
+- **Distance** — each device shows how far it is from your phone ("2.3 km away").
+- **Invite link** — tap "Copy invite link" and send it to the other person; the link opens the page with the Room Code already filled in.
+- **Colour-coded markers** — your phone is blue, other phones are red.
+- **Last location is kept** — even if sharing stops or the phone goes offline, the last location stays on the map.
 
-## Gmail / Phone / IMEI se tracking — sach kya hai
+## About Google Maps — the honest truth
 
-- **IMEI ya phone number se direct track koi app ya website nahi kar sakti** — sirf mobile company (carrier) aur police kar sakte hain, tower data se. Chori hone par IMEI **block** karwaya ja sakta hai: [CEIR (ceir.gov.in)](https://www.ceir.gov.in) — uske baad wo phone India me kisi bhi SIM par nahi chalega.
-- **Gmail ID se tracking = Google Find My Device.** Phone me jo Gmail login hai, usi se [google.com/android/find](https://www.google.com/android/find) par phone ko ring, lock ya erase kar sakte ho. Ye system-level hai — is app se zyada powerful hai.
-- Is app me **koi Gmail, phone number ya IMEI nahi manga jata** — sirf Room Code. Live location is app se, aur chori ke baad ki karwai Find My Device + CEIR + police se.
+- Every device's live pin **opens in Google Maps** (tap the 📍 Google Maps button — it opens google.com/maps at the exact location).
+- A **full Google Map inside the app** needs a Google Cloud **Maps API key + billing** (a card must be attached). That is why the in-app map is OpenStreetMap, which is free and needs no key.
 
-## Setup — 5 minute
+## About Gmail / phone number / IMEI tracking — the honest truth
 
-### 1. Firebase project banao (free)
-1. https://console.firebase.google.com kholo → **Add project** → naam do (jaise `live-tracker`) → Google Analytics off rakh sakte ho → **Create project**.
-2. Left menu: **Build → Realtime Database → Create Database** → location koi bhi (jaise `asia-southeast1`) → **Start in locked mode**.
+- **No app or website can track a phone directly by IMEI or phone number** — only the mobile carrier and the police can, using tower data. If a phone is stolen, the IMEI can be **blocked**: [CEIR (ceir.gov.in)](https://www.ceir.gov.in) — after that, the phone will not work on any SIM in India.
+- **Tracking by Gmail ID means Google Find My Device.** With the same Gmail ID that is logged in on the phone, open [google.com/android/find](https://www.google.com/android/find) to ring, lock or erase the phone. It works at system level and is more powerful than this app.
+- This app **does not ask for any Gmail ID, phone number or IMEI** — only the Room Code. Live location comes from this app; after a theft, Find My Device + CEIR + police is the way to go.
 
-### 2. Database rules lagao
-1. Realtime Database page par **Rules** tab kholo.
-2. Wahan ka content delete karke is repo ki `database.rules.json` wali lines paste karo → **Publish**.
-3. Matlab: root par koi read/write nahi — sirf jiske paas Room Code hai, wahi us room ki location dekh/badhal sakta hai.
+## Setup — 5 minutes
 
-### 3. Web app config nikalo
-1. Project settings (⚙️ gear icon, top-left) → **Your apps → Web app (`</>`)** → nickname do → **Register app**.
-2. Jo config dikhe (apiKey, databaseURL, …), use `firebase-config.example.js` ko copy karke **`firebase-config.js`** naam se save karo aur values paste karo.
-3. ⚠️ Ye keys browser me waise bhi dikhti hain — asli security Rules + Room Code hain. Isliye config repo me reh sakti hai.
+### 1. Create a Firebase project (free)
+1. Open https://console.firebase.google.com → **Add project** → give it a name (e.g. `live-tracker`) → you can keep Google Analytics off → **Create project**.
+2. Left menu: **Build → Realtime Database → Create Database** → pick any location (e.g. `asia-southeast1`) → **Start in locked mode**.
 
-### 4. GitHub Pages par deploy karo (free hosting)
-1. Is repo ki **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main`, folder `/ (root)` → Save**.
-2. 1–2 minute me link milega: `https://rohitrajkumar1477-dev.github.io/live-location-tracker-by-Rex-Tiwari/`
-3. ⚠️ Geolocation sirf **HTTPS** par chalta hai — GitHub Pages HTTPS deta hai, isliye yahi use karo. `file://` se khologe to location nahi milegi.
+### 2. Add the database rules
+1. On the Realtime Database page, open the **Rules** tab.
+2. Delete its content and paste the lines from this repo's `database.rules.json` → **Publish**.
+3. Meaning: no read/write at the root — only someone with the Room Code can see or change that room's locations.
 
-## Use kaise karein
+### 3. Get the web app config
+1. Project settings (⚙️ gear icon, top-left) → **Your apps → Web app (`</>`)** → give a nickname → **Register app**.
+2. Copy the config shown (apiKey, databaseURL, …) into a file named **`firebase-config.js`** (copy `firebase-config.example.js` first) and paste the values.
+3. ⚠️ These keys are visible in the browser anyway — the real security is the Rules + Room Code, so the config can live in the repo.
 
-**Dono phone par (ek jaisa step):**
-1. Pages wala link kholo → **Room Code** daalo → **Start sharing** → Location permission **Allow** karo.
-2. Page khula rehne do. Best hai: phone ko charging par rakho, aur browser ko background me band mat hone do.
-3. Neeche map par **dono phone live dikhenge**. Kisi device par tap karo to uski live pin **Google Maps** me khul jayegi (rasta dekhne ke liye).
+### 4. Deploy on GitHub Pages (free hosting)
+1. In this repo: **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `main`, folder `/ (root)` → Save**.
+2. In 1–2 minutes you get the link: `https://rohitrajkumar1477-dev.github.io/live-location-tracker-by-Rex-Tiwari/`
+3. ⚠️ Geolocation only works over **HTTPS** — GitHub Pages gives you HTTPS, so use that. Opening with `file://` will not give a location.
 
-**Chori hone par:**
-1. Dusre device se wahi link kholo — **last location** dikhegi, chahe phone band bhi ho gaya ho (Stop dabaye bina last location delete nahi hoti).
-2. Turant police complaint karo aur location screenshot ke saath share karo. **Khud chor ke peeche mat jao.**
+## How to use
 
-## ⚠️ Imaandaar limits — zaroor padho
+**On both phones (same steps):**
+1. Open the Pages link → enter the **Room Code** → **Start Sharing** → allow the **Location** permission.
+2. Keep the page open. Best: keep the phone on charging and don't let the browser close in the background.
+3. Both phones appear **live on the map below**. Tap any device to open its live pin in **Google Maps** (to see the route).
 
-- **Ye OS-level tracker nahi hai.** Browser band hote hi, ya internet off hote hi, sharing ruk jayegi. Chor page band kar de to live update band — sirf last location milegi.
-- **Asli chori-protection ye hai:** Android par **Google Find My Device** (Settings → Security → Find My Device → ON) aur iPhone par **Find My** ON rakho. Ye system-level hain — phone reset hone par bhi kaam karte hain, aur SIM nikale bina bhi last location dikhate hain. **Is app ko uska replacement mat samjho — extra safety samjho.**
-- Location accuracy GPS par depend karti hai (±5–50 meter aam hai; building ke andar kharab ho sakti hai).
+**If a phone is stolen:**
+1. Open the same link on another device — the **last location** will still show, even if the phone is switched off (the last location is never deleted unless sharing is stopped first).
+2. File a police complaint immediately and share the location screenshot. **Do not go after the thief yourself.**
+
+## ⚠️ Honest limits — please read
+
+- **This is not an OS-level tracker.** As soon as the browser closes, or the internet goes off, sharing stops. If a thief closes the page, live updates stop — only the last location remains.
+- **The real theft protection is:** on Android, **Google Find My Device** (Settings → Security → Find My Device → ON); on iPhone, **Find My** ON. These work at system level — they keep working even after a reset, and show the last location without the SIM. **Do not treat this app as a replacement for them — treat it as extra safety.**
+- Location accuracy depends on GPS (±5–50 metres is normal; it can be worse indoors).
 
 ## Privacy
 
-- Sirf **apne ya family ke phone** par, **unki permission se** use karo. Kisi aur ka phone bina bataye track karna galat hai aur kanoon ke khilaf ho sakta hai.
-- Room Code lamba aur random rakho (jaise `meri-family-4821-xyz`), aur kisi se share mat karo.
-- Stronger security chahiye to Firebase Authentication (email login) add karo — abhi ke liye Room Code hi protection hai.
+- Only use it on **your own or your family's phones**, **with their permission**. Tracking someone else's phone without telling them is wrong and may be against the law.
+- Keep the Room Code long and random (e.g. `my-family-4821-xyz`), and don't share it with anyone else.
+- For stronger security, add Firebase Authentication (email login) — for now, the Room Code is the protection.
 
 ## Files
 
-| File | Kaam |
+| File | Purpose |
 |---|---|
-| `index.html` | Tracker + Viewer, ek hi page |
+| `index.html` | Tracker + Viewer, one page |
 | `app.js` | GPS watch, Firebase sync, map logic |
 | `styles.css` | Design |
-| `firebase-config.example.js` | Config ka sample — copy karke `firebase-config.js` banao |
-| `database.rules.json` | Realtime Database ke security rules |
+| `firebase-config.example.js` | Sample config — copy it to make `firebase-config.js` |
+| `database.rules.json` | Realtime Database security rules |
 | `LICENSE` | MIT |
 
-## Local test (bina deploy ke)
+## Local test (without deploying)
 
 ```bash
-# Python se local server (https nahi — GPS ke liye localhost chalta hai)
+# Local server with Python (no https — localhost works for GPS)
 python3 -m http.server 8000
-# phir kholo: http://localhost:8000
+# then open: http://localhost:8000
 ```
 
-> Note: `firebase-config.js` repo me hai (Pages ko chahiye) — uski keys browser me waise bhi dikhti hain; asli security Rules + Room Code hain.
+> Note: `firebase-config.js` is in the repo (Pages needs it) — its keys are visible in the browser anyway; the real security is the Rules + Room Code.
