@@ -34,6 +34,21 @@ Locations are saved in **Firebase Realtime Database** (free), so both devices up
 - **Invite link** — tap "Copy invite link" and send it to the other person; the link opens the page with the Room Code already filled in.
 - **Colour-coded markers** — your phone is blue, other phones are red.
 - **Last location is kept** — even if sharing stops or the phone goes offline, the last location stays on the map.
+- **Install as an app (PWA)** — tap "Install as app" (or Chrome menu → "Add to Home screen"). It opens full-screen from your home screen like a real app, loads fast offline, and keeps the screen on while sharing so the phone doesn't sleep mid-share.
+- **Screen Wake Lock** — while sharing, the screen stays on so the browser doesn't pause the page.
+
+## What happens if you leave the site? — the honest truth
+
+**A website cannot track location after you leave it.** That is a browser rule, not a bug in this app:
+
+- Close the tab or the browser → all tracking stops immediately. No website can run GPS in the background.
+- Switch to another app → the browser throttles the page within minutes (Android) or suspends it almost at once (iPhone). Sharing pauses; only the last location remains visible.
+- Service workers (the tech behind installable apps) **cannot access GPS at all** — so even an installed app can't track while closed.
+
+**What actually keeps tracking with just "location on":**
+
+1. **Google Find My Device** (Android) / **Find My** (iPhone) — system-level. As long as the phone is on, has internet and location on, Google/Apple can show it — no website needs to stay open. This is the real answer for a lost or stolen phone.
+2. **A native Android app** with a foreground service (a permanent "Sharing location" notification). That needs a real app built in Android Studio and installed as an APK — a much bigger project than this website.
 
 ## About Google Maps — the honest truth
 
@@ -80,7 +95,7 @@ Locations are saved in **Firebase Realtime Database** (free), so both devices up
 
 ## ⚠️ Honest limits — please read
 
-- **This is not an OS-level tracker.** As soon as the browser closes, or the internet goes off, sharing stops. If a thief closes the page, live updates stop — only the last location remains.
+- **This is not an OS-level tracker.** As soon as the browser closes, or the internet goes off, sharing stops. If a thief closes the page, live updates stop — only the last location remains. See "What happens if you leave the site?" above.
 - **The real theft protection is:** on Android, **Google Find My Device** (Settings → Security → Find My Device → ON); on iPhone, **Find My** ON. These work at system level — they keep working even after a reset, and show the last location without the SIM. **Do not treat this app as a replacement for them — treat it as extra safety.**
 - Location accuracy depends on GPS (±5–50 metres is normal; it can be worse indoors).
 

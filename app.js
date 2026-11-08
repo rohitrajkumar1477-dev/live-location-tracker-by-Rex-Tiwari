@@ -4,6 +4,22 @@
 
   var $ = function (id) { return document.getElementById(id); };
 
+  /* ---------- Installable app (PWA) ---------- */
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(function () { /* optional */ });
+  }
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    $('btn-install').classList.remove('hidden');
+  });
+  $('btn-install').addEventListener('click', function () {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function () { deferredPrompt = null; });
+  });
+
   /* ---------- Firebase ---------- */
   var db = null;
   function setConn(text, ok) {
@@ -89,6 +105,23 @@
   var heartbeat = null;
   var lastFix = null;
   var batteryLevel = null;
+  var wakeLock = null;
+
+  // Screen Wake Lock: keeps the screen on while sharing, so the phone
+  // does not sleep and kill the page. Browsers release it when the
+  // page is hidden — that is a browser limit, not a bug.
+  function acquireWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request('screen').then(function (lock) {
+      wakeLock = lock;
+    }).catch(function () { /* wake lock unavailable */ });
+  }
+  function releaseWakeLock() {
+    if (wakeLock) { wakeLock.release().catch(function () {}); wakeLock = null; }
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && watchId !== null) acquireWakeLock();
+  });
 
   if (navigator.getBattery) {
     navigator.getBattery().then(function (b) {
@@ -118,6 +151,7 @@
       maximumAge: 0,
       timeout: 15000
     });
+    acquireWakeLock();
     // Re-send the last location every 15 seconds so "last seen" stays fresh
     heartbeat = setInterval(function () { if (lastFix) sendFix(lastFix); }, 15000);
     $('btn-start').classList.add('hidden');
@@ -129,6 +163,7 @@
     if (watchId !== null) navigator.geolocation.clearWatch(watchId);
     if (heartbeat) clearInterval(heartbeat);
     watchId = null; heartbeat = null;
+    releaseWakeLock();
     // Never delete the last location — it is what helps if the phone is stolen.
     if (db && roomCode()) {
       roomRef().child(deviceId).child('sharing').set(false);
