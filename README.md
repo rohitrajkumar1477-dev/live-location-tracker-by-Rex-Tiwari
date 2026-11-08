@@ -33,6 +33,7 @@ Locations are saved in **Firebase Realtime Database** (free), so both devices up
 - **Distance** — each device shows how far it is from your phone ("2.3 km away").
 - **Invite link** — tap "Copy invite link" and send it to the other person; the link opens the page with the Room Code already filled in.
 - **Colour-coded markers** — your phone is blue, other phones are red.
+- **Google Maps redirect** — one big button under Devices opens the tracked phone's current location directly in Google Maps. If the in-app map doesn't show the phone, this still works — it only needs the coordinates.
 - **Last location is kept** — even if sharing stops or the phone goes offline, the last location stays on the map.
 - **Install as an app (PWA)** — tap "Install as app" (or Chrome menu → "Add to Home screen"). It opens full-screen from your home screen like a real app, loads fast offline, and keeps the screen on while sharing so the phone doesn't sleep mid-share.
 - **Screen Wake Lock** — while sharing, the screen stays on so the browser doesn't pause the page.
@@ -48,6 +49,7 @@ The page has a **Status** box that shows exactly what is wrong:
 | Location permission: **Prompt** | Tap **Start Sharing** and tap **Allow** when the browser asks. |
 | GPS: **Error** | Turn on the phone's GPS/Location and try in an open area. |
 | Sharing: **Off** | Enter the Room Code and tap **Start Sharing**. |
+| Map not showing the phone? | Tap **📍 Open in Google Maps** under Devices — it opens the tracked phone's current location directly in Google Maps. |
 
 Other common fixes:
 - **Open the link in Chrome**, not inside WhatsApp/Instagram/another app's built-in browser — those often block location.

@@ -95,7 +95,25 @@
     restartViewer();
   });
 
-  // Invite link: page URL + ?room=CODE, so the other person opens it with the code filled in
+  // Google Maps redirect: opens the most recently updated phone's
+  // current location directly in Google Maps — the fallback when the
+  // in-app map does not show it.
+  var latestDevice = null;
+  $('btn-gmaps').addEventListener('click', function () {
+    if (!latestDevice) return;
+    window.open('https://www.google.com/maps?q=' + latestDevice.lat + ',' + latestDevice.lng, '_blank');
+  });
+  function updateGmapsButton() {
+    var btn = $('btn-gmaps');
+    if (!btn) return;
+    if (latestDevice) {
+      btn.disabled = false;
+      btn.textContent = '📍 Open ' + latestDevice.label + ' in Google Maps';
+    } else {
+      btn.disabled = true;
+      btn.textContent = '📍 Open in Google Maps';
+    }
+  }
   $('btn-invite').addEventListener('click', function () {
     if (!roomCode()) {
       $('invite-status').textContent = 'Enter the Room Code first.';
@@ -321,6 +339,8 @@
     list.innerHTML = '';
     if (!ids.length) {
       list.innerHTML = '<li class="muted">No device is live right now.</li>';
+      latestDevice = null;
+      updateGmapsButton();
       setStatus('view', 'No device found. Check the same Room Code and Start sharing on the tracking phone.');
       return;
     }
@@ -355,6 +375,10 @@
 
       var ago = timeAgo(d.ts);
       var label = displayName(id);
+      // Remember the most recently updated phone for the Google Maps button.
+      if (!latestDevice || (d.ts || 0) > (latestDevice.ts || 0)) {
+        latestDevice = { lat: d.lat, lng: d.lng, label: label, ts: d.ts || 0 };
+      }
       // Distance from your phone
       var distLabel = '';
       if (!isSelf && lastFix) {
@@ -388,6 +412,7 @@
       list.appendChild(li);
     });
     if (map && bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+    updateGmapsButton();
     setStatus('view', ids.length + ' device(s) found — updating live.');
   }
 
