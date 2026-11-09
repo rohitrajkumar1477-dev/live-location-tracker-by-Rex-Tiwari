@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Live tracker
+    url: https://rohitrajkumar1477-dev.github.io/live-location-tracker-by-Rex-Tiwari/
+    about: Try the tracker first — most problems are answered by the Status box on the page.
+  - name: How it works and honest limits
+    url: https://github.com/rohitrajkumar1477-dev/live-location-tracker-by-Rex-Tiwari#how-it-works
+    about: Read this before reporting — a website cannot track a phone after the tab is closed.
